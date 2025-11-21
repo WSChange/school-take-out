@@ -16,12 +16,14 @@ import com.sky.mapper.SetmealDishMapper;
 import com.sky.mapper.SetmealMapper;
 import com.sky.result.PageResult;
 import com.sky.service.SetmealService;
+import com.sky.vo.DishItemVO;
 import com.sky.vo.SetmealVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -120,6 +122,7 @@ public class SetmealServiceImpl implements SetmealService {
         setmealDishMapper.insertBatch(setmealDishes);
     }
 
+
     /**
      * 根据id查询套餐和套餐菜品之间的关系
      * @param id
@@ -161,7 +164,24 @@ public class SetmealServiceImpl implements SetmealService {
         setmealMapper.update(setmeal);
     }
 
+    /**
+     * 用户根据分类id查询套餐
+     *
+     * @param setmeal
+     * @return
+     */
+    public List<Setmeal> getSetmealByCategoryId(Setmeal setmeal) {
+        List<Setmeal> c_setmeal = setmealMapper.getSetmealByCategoryId(setmeal);
+        return c_setmeal;
+    }
 
-
+    /**
+     * 根据id查询套餐内的菜品
+     * @param id
+     * @return
+     */
+    public List<DishItemVO> getDishItemById(Long id) {
+        return setmealMapper.getDishItemById(id);
+    }
 
 }
