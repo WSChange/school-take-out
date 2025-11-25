@@ -11,6 +11,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,13 +31,15 @@ public class SetmealController {
     @Autowired
     private SetmealService setmealService;
 
-    @GetMapping("list")
+    @GetMapping("/list")
     @ApiOperation("用户根据分类id查询套餐")
-    public Result<List<Setmeal>> getSetmealByCategoryId(Long categoryId){
+    @Cacheable(cacheNames = "setmealCache",key = "#categoryId") //key:setmealCache::100
+    public Result<List<Setmeal>> list(Long categoryId){
         Setmeal setmeal = new Setmeal();
         setmeal.setCategoryId(categoryId);
         setmeal.setStatus(StatusConstant.ENABLE);
-        List<Setmeal> list = setmealService.getSetmealByCategoryId(setmeal);
+
+        List<Setmeal> list = setmealService.list(setmeal);
         return Result.success(list);
     }
 

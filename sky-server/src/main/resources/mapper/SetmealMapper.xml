@@ -56,7 +56,7 @@
         where id = #{id}
     </update>
 
-    <select id="getSetmealByCategoryId" resultType="com.sky.entity.Setmeal">
+    <select id="list" parameterType="Setmeal" resultType="com.sky.entity.Setmeal">
         select * from setmeal
         <where>
             <if test="name != null">

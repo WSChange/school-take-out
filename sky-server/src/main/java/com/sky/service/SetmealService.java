@@ -56,7 +56,7 @@ public interface SetmealService {
      * @param setmeal
      * @return
      */
-    List<Setmeal> getSetmealByCategoryId(Setmeal setmeal);
+    List<Setmeal> list(Setmeal setmeal);
 
     /**
      * 根据id查询套餐内的菜品
@@ -64,4 +64,6 @@ public interface SetmealService {
      * @return
      */
     List<DishItemVO> getDishItemById(Long id);
+
+
 }

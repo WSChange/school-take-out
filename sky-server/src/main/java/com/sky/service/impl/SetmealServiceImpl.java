@@ -150,7 +150,7 @@ public class SetmealServiceImpl implements SetmealService {
             List<Dish> dishList = dishMapper.getBySetmealId(id);
             if (dishList != null && dishList.size() > 0){
                 dishList.forEach(dish -> {
-                    if (dish.getStatus() == StatusConstant.ENABLE){
+                    if (dish.getStatus() == StatusConstant.DISABLE){
                         throw new SetmealEnableFailedException(MessageConstant.SETMEAL_ENABLE_FAILED);
                     }
                 });
@@ -170,9 +170,9 @@ public class SetmealServiceImpl implements SetmealService {
      * @param setmeal
      * @return
      */
-    public List<Setmeal> getSetmealByCategoryId(Setmeal setmeal) {
-        List<Setmeal> c_setmeal = setmealMapper.getSetmealByCategoryId(setmeal);
-        return c_setmeal;
+    public List<Setmeal> list(Setmeal setmeal) {
+        List<Setmeal> list = setmealMapper.list(setmeal);
+        return list;
     }
 
     /**

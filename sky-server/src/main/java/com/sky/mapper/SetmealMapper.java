@@ -64,7 +64,7 @@ public interface SetmealMapper {
      * @param setmeal
      * @return
      */
-    List<Setmeal> getSetmealByCategoryId(Setmeal setmeal);
+    List<Setmeal> list(Setmeal setmeal);
 
     /**
      * 用户根据套餐id查询菜品

@@ -29,7 +29,7 @@ public class DishController {
 
     @GetMapping("/list")
     @ApiOperation("根据分类id查询菜品")
-    public Result<List<DishVO>> getById(Long categoryId){
+    public Result<List<DishVO>> list(Long categoryId){
 
         // 构造redis中的key,规则 dish_分类id
         String key = "dish_" + categoryId;
