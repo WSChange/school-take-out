@@ -23,12 +23,14 @@ import com.sky.vo.OrderVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -231,5 +233,21 @@ public class OrderServiceImpl implements OrderService {
         return new PageResult(page.getTotal(), page.getResult());
     }*/
 
+    /**
+     * 查询订单详情
+     * @param id
+     * @return
+     */
+    public OrderVO getDetailsById(Long id) {
+        // 根据id查询订单
+        Orders orders = orderMapper.getById(id);
+        // 查询该订单对应的菜品/套餐详情
+        List<OrderDetail> orderDetailList = orderDetailMapper.getByOrderId(orders.getId());
+        // 将该订单及其详情封装到OrderVO中并返回
+        OrderVO orderVO = new OrderVO();
+        BeanUtils.copyProperties(orders,orderVO);
+        orderVO.setOrderDetailList(orderDetailList);
+        return orderVO;
+    }
 
 }
