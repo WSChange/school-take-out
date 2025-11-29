@@ -71,8 +71,14 @@ public class OrderController {
 
     @PutMapping("/delivery/{id}")
     @ApiOperation("派送订单")
-    public Result delivery(@PathVariable("id") Long id) throws Exception{
+    public Result delivery(@PathVariable("id") Long id){
         orderService.delivery(id);
+        return Result.success();
+    }
+
+    @PutMapping("/complete/{id}")
+    public Result complete(@PathVariable("id") Long id){
+        orderService.complete(id);
         return Result.success();
     }
 

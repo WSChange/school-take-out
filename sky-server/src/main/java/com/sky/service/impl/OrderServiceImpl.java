@@ -518,17 +518,37 @@ public class OrderServiceImpl implements OrderService {
      * @param id
      */
     public void delivery(Long id) {
-        Orders orderDB = orderMapper.getById(id);
+        Orders ordersDB = orderMapper.getById(id);
 
-        if (orderDB == null || orderDB.getStatus().equals(Orders.CONFIRMED)){
+        if (ordersDB == null || !ordersDB.getStatus().equals(Orders.CONFIRMED)){
             throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
         }
 
         Orders orders = new Orders();
-        orders.setId(id);
+        orders.setId(ordersDB.getId());
         orders.setStatus(Orders.DELIVERY_IN_PROGRESS);
         orderMapper.update(orders);
+    }
 
+    /**
+     * 完成订单
+     * @param id
+     */
+    public void complete(Long id) {
+        // 根据id查询订单
+        Orders ordersDB = orderMapper.getById(id);
+
+        // 校验订单是否存在且状态为4
+        if (ordersDB == null || !ordersDB.getStatus().equals(Orders.DELIVERY_IN_PROGRESS)){
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        // 更新订单状态，状态转为完成
+        Orders orders = new Orders();
+        orders.setId(ordersDB.getId());
+        orders.setStatus(Orders.COMPLETED);
+        orders.setDeliveryTime(LocalDateTime.now());
+        orderMapper.update(orders);
     }
 
 
