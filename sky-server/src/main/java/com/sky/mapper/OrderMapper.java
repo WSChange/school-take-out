@@ -53,12 +53,17 @@ public interface OrderMapper {
     @Select("select * from orders where id = #{id}")
     Orders getById(Long id);
 
-
     /**
      * 用户取消订单-作业
-     * @param ids
+     *
      */
 //    @Delete("delete from orders where id = #{ids}")
 //    void cancel(Long ids);
+
+//    /**
+//     * 订单搜索
+//     * @param orders
+//     */
+//    void conditionSearch(Orders orders);
     
 }
