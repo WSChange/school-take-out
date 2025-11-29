@@ -70,6 +70,37 @@ public class OrderController {
         return Result.success(orderVO);
     }
 
+    /*
+    订单管理-作业
+    @PutMapping("/cancel/{id}")
+    @ApiOperation("用户取消订单")
+    public Result cancel(@PathVariable("id") Long id){
+        orderService.cancel(id);
+        return Result.success();
+    }*/
+
+    @PutMapping("/cancel/{id}")
+    @ApiOperation("用户取消订单")
+    public Result cancel(@PathVariable("id") Long id) throws Exception{
+        orderService.userCancelById(id);
+        return Result.success();
+    }
+
+    /*
+    用户再来一单-作业
+    @PostMapping("/repetition/{id}")
+    @ApiOperation("用户再来一单")
+    public Result repetition(@PathVariable("id") Long id){
+        orderService.userRepOrders(id);
+        return Result.success();
+    }*/
+
+    @PostMapping("/repetition/{id}")
+    @ApiOperation("用户再来一单")
+    public Result repetition(@PathVariable("id") Long id){
+        orderService.repetition(id);
+        return Result.success();
+    }
 
 
 }

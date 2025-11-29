@@ -15,6 +15,7 @@ import com.sky.exception.ShoppingCartBusinessException;
 import com.sky.mapper.*;
 import com.sky.result.PageResult;
 import com.sky.service.OrderService;
+import com.sky.service.ShoppingCartService;
 import com.sky.utils.WeChatPayUtil;
 import com.sky.vo.OrderOverViewVO;
 import com.sky.vo.OrderPaymentVO;
@@ -23,7 +24,6 @@ import com.sky.vo.OrderVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +32,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -50,6 +51,8 @@ public class OrderServiceImpl implements OrderService {
     private UserMapper userMapper;
     @Autowired
     private WeChatPayUtil weChatPayUtil;
+    @Autowired
+    private ShoppingCartService shoppingCartService;
 
     /**
      * 用户下单
@@ -249,5 +252,118 @@ public class OrderServiceImpl implements OrderService {
         orderVO.setOrderDetailList(orderDetailList);
         return orderVO;
     }
+
+
+    /**
+     * 用户取消订单-作业
+     * @param id
+     */
+    /*
+    缺少判断订单是否存在以及订单状态的流程，注意用户取消订单时可直接通过set方法设置即可。
+    public void cancel(Long id) {
+        // 根据id查询订单，并获取订单状态
+        Orders orders = orderMapper.getById(id);
+        Long ids = orders.getId();
+        // 若订单状态为 待支付1或待接单2，用户可直接取消订单
+        if (orders.getStatus() == 1 || orders.getStatus() == 2){
+            orderMapper.cancel(ids);
+            // 若订单状态为 已接单3或派送中4，用户取消订单需电话沟通商家
+        } else if (orders.getStatus() == 3 || orders.getStatus() == 4){
+            // 电话沟通
+        } else{
+            System.out.println("订单已结束");
+        }
+    }*/
+
+
+    /**
+     * 用户取消订单
+     * @param id
+     */
+    public void userCancelById(Long id) throws Exception {
+        // 根据id查询订单，并获取订单状态
+        Orders ordersDB = orderMapper.getById(id);
+
+        // 校验订单是否存在
+        if (ordersDB == null){
+            // 若不存在，则抛出异常，用常量定义好的常量返回
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+
+        // 判断订单状态
+        if (ordersDB.getStatus() > 2){
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        Orders orders = new Orders();
+        // 获取订单id
+        orders.setId(ordersDB.getId());
+
+        // 订单处于待接单状态下取消，需要进行退款
+        if (ordersDB.getStatus().equals(Orders.TO_BE_CONFIRMED)){
+            // 调用微信支付退款接口
+//            weChatPayUtil.refund(
+//                    ordersDB.getNumber(), //商户订单号
+//                    ordersDB.getNumber(), //商户退款单号
+//                    new BigDecimal(0.01),//退款金额，单位 元
+//                    new BigDecimal(0.01));//原订单金额
+//            )
+            //支付状态修改为 退款
+            orders.setPayStatus(Orders.REFUND);
+        }
+        // 更新订单状态、取消原因、取消时间
+        orders.setStatus(Orders.CANCELLED);
+        orders.setCancelReason("用户取消");
+        orders.setCancelTime(LocalDateTime.now());
+        orderMapper.update(orders);
+    }
+
+
+    /**
+     * 订单完成后再来一单-作业
+     * @param id
+     */
+    /*
+    理解有误，再来一单应该是与先前订单内容相同
+    public void userRepOrders(Long id) {
+        // 获取订单状态
+        Orders orders = new Orders();
+        // 判断订单是否存在
+        if (id == null){
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        // 若订单状态为已完成6 则将接口转到添加订单
+        if (orders.getStatus() < 6){
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+    }*/
+
+    /**
+     * 订单完成后再来一单
+     * @param id
+     */
+    public void repetition(Long id) {
+        // 查询当前用户id
+        Long userId = BaseContext.getCurrentId();
+
+        // 根据订单id查询当前订单详情
+        List<OrderDetail> orderDetailList = orderDetailMapper.getByOrderId(id);
+
+        // 将订单详情对象转换为购物车对象
+        List<ShoppingCart> shoppingCartList = orderDetailList.stream().map(x ->{
+            ShoppingCart shoppingCart = new ShoppingCart();
+            // 将原订单详情里面的菜品信息重新复制到购物车对象中
+            BeanUtils.copyProperties(x,shoppingCart,"id");
+            shoppingCart.setUserId(userId);
+            shoppingCart.setCreateTime(LocalDateTime.now());
+
+            return shoppingCart;
+        }).collect(Collectors.toList());
+
+        shoppingCartMapper.insertBatch(shoppingCartList);
+        // 将购物车对象批量添加到数据库中
+    }
+
 
 }
