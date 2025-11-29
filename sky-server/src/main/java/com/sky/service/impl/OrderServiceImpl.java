@@ -18,6 +18,7 @@ import com.sky.service.OrderService;
 import com.sky.service.ShoppingCartService;
 import com.sky.utils.WeChatPayUtil;
 import com.sky.vo.OrderPaymentVO;
+import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
 import lombok.extern.slf4j.Slf4j;
@@ -393,7 +394,7 @@ public class OrderServiceImpl implements OrderService {
 
 
     private List<OrderVO> getOrderVOList(Page<Orders> page) {
-        // 返回订单菜品信息，自定义OrderVO响应结果
+        // 返回订单菜品信息，自定义OrderVO进行封装并返回响应结果
         List<OrderVO> orderVOList = new ArrayList<>();
 
         List<Orders> ordersList = page.getResult();
@@ -424,6 +425,28 @@ public class OrderServiceImpl implements OrderService {
 
         // 将订单对应的所有菜品信息拼接在一起
         return String.join("",orderDishList);
+    }
+
+
+    /**
+     * 各个状态订单数量统计
+     * @return
+     */
+    public OrderStatisticsVO statistics() {
+//        Orders orders = new Orders();
+//        OrderStatisticsVO orderStatistics = orderMapper.statistics(orders.getStatus());
+//        return orderStatistics;
+        // 注意需先统计出不同状态的订单数量，设置状态需要注意Orders类中已经定义了常量
+        // 根据状态，分别查出待接单、待派送、派送中的订单数量
+        Integer toBeConfirmed = orderMapper.countStatus(Orders.TO_BE_CONFIRMED);
+        Integer confirmed = orderMapper.countStatus(Orders.CONFIRMED);
+        Integer deliveryInProgress = orderMapper.countStatus(Orders.DELIVERY_IN_PROGRESS);
+        // 将查询出的数据封装到orderStatisticsVO中响应
+        OrderStatisticsVO orderStatisticsVO = new OrderStatisticsVO();
+        orderStatisticsVO.setToBeConfirmed(toBeConfirmed);
+        orderStatisticsVO.setConfirmed(confirmed);
+        orderStatisticsVO.setDeliveryInProgress(deliveryInProgress);
+        return orderStatisticsVO;
     }
 
 }

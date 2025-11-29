@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.entity.Orders;
 import com.sky.vo.OrderOverViewVO;
+import com.sky.vo.OrderStatisticsVO;
 import org.apache.ibatis.annotations.*;
 
 import java.time.LocalDateTime;
@@ -54,16 +55,16 @@ public interface OrderMapper {
     Orders getById(Long id);
 
     /**
-     * 用户取消订单-作业
-     *
+     * 各个状态订单数量统计-作业
+     * @return
      */
-//    @Delete("delete from orders where id = #{ids}")
-//    void cancel(Long ids);
+//    OrderStatisticsVO statistics(Integer status);
 
-//    /**
-//     * 订单搜索
-//     * @param orders
-//     */
-//    void conditionSearch(Orders orders);
-    
+    /**
+     * 根据状态统计订单数量
+     * @param toBeConfirmed
+     * @return
+     */
+    @Select("select count(id) from orders where status = #{status}")
+    Integer countStatus(Integer toBeConfirmed);
 }
