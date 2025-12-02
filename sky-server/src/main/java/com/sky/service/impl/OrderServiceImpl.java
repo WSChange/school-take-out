@@ -582,6 +582,8 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.update(orders);
     }
 
+
+
     /**
      * 检查客户的收货地址是否超出配送范围
      * @param address
@@ -643,5 +645,28 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+    /**
+     * 客户催单
+     * @param id
+     */
+    public void reminder(Long id) {
+
+        // 根据id查询订单
+        Orders ordersDB = orderMapper.getById(id);
+
+        // 校验订单
+        if (ordersDB == null){
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        Map map = new HashMap();
+        map.put("type",2);
+        map.put("orderId",id);
+        map.put("content","订单号:" + ordersDB.getNumber());
+
+        //通过websocket向客户端浏览器推送消息
+        webSocketServer.sendToAllClient(JSON.toJSONString(map));
+
+    }
 
 }
